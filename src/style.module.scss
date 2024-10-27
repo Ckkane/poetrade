@@ -1,0 +1,43 @@
+.price {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+    .header {
+        color: #a38d6d
+    }
+
+    .left {
+        width: 120px;
+        margin-left: 20px
+    }
+
+    .right {
+        width: 100px;
+    }
+
+}
+
+
+.item1 {}
+
+.item2 {}
+
+
+.btn {
+    padding: 5px;
+    background-color: #E1FCEF;
+    font-size: 10px;
+    border: none;
+    border-radius: 3px;
+    color: #14804A;
+    cursor: pointer;
+}
+
+.btn:disabled {
+    color: #D12953;
+    background-color: #FAF0F3;
+    cursor: auto;
+}

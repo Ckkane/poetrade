@@ -2,7 +2,7 @@ import './App.css';
 import React, { useState } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux'
-import { addNewItems, setBulkItems, updateLastData, getUpdatedBulkData, fetchUserById, setDivinePrice, saveItems } from './redux/slices/itemSlice'
+import { addNewItems, setBulkItems, fetchUserById, setDivinePrice, saveItems } from './redux/slices/itemSlice'
 
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -12,10 +12,6 @@ import { IoRefresh, IoCheckmark  } from "react-icons/io5";
 
 import styles from './style.module.scss'
 import axios from 'axios';
-
-
-
-
 
 let allLabels = JSON.parse(localStorage.getItem('labels'));
 let config = JSON.parse(localStorage.getItem('config'))
@@ -37,22 +33,28 @@ sortedLabels.set('craicic-chimeral', '/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3V
 sortedLabels.set('vivid-watcher', '/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQmVzdGlhcnlPcmJGdWxsIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/3214b44360/BestiaryOrbFull.png')
 sortedLabels.set('vivid-vulture', '/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQmVzdGlhcnlPcmJGdWxsIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/3214b44360/BestiaryOrbFull.png')
 
-
-
-let buyPrice = new Map();
 var snd = new Audio("https://web.poecdn.com/audio/trade/pulse.mp3");
 
-buyPrice.set('fortress-map-tier-17', { price: 0.80 * config.divinePrice })
-buyPrice.set('abomination-map-tier-17', { price: 0.60 * config.divinePrice })
-buyPrice.set('ziggurat-map-tier-17', { price: 0.70 * config.divinePrice })
-buyPrice.set('incandescent-invitation', { price: 0.70 * config.divinePrice })
-buyPrice.set('veritanias-map', { price: 0.3 * config.divinePrice })
-buyPrice.set('barans-map', { price: 0.3 * config.divinePrice })
-buyPrice.set('droxs-map', { price: 0.3 * config.divinePrice })
-buyPrice.set('al-hezmins-map', { price: 0.3 * config.divinePrice })
-buyPrice.set('craicic-chimeral', { price: 1.1 * config.divinePrice })
-buyPrice.set('vivid-watcher', { price: 2 * config.divinePrice })
-buyPrice.set('vivid-vulture', { price: 3.7 * config.divinePrice })
+let buyPrice = new Map();
+
+buyPrice.set('fortress-map-tier-17', { price: config.items.filter((item) => item.itemName === 'fortress-map-tier-17')[0]?.price|| 0.80 * config.divinePrice })
+buyPrice.set('abomination-map-tier-17', { price: config.items.filter((item) => item.itemName === 'abomination-map-tier-17')[0]?.price|| 0.80 * config.divinePrice })
+buyPrice.set('ziggurat-map-tier-17', { price: config.items.filter((item) => item.itemName === 'ziggurat-map-tier-17')[0]?.price || 0.70 * config.divinePrice })
+buyPrice.set('incandescent-invitation', { price: config.items.filter((item) => item.itemName === 'incandescent-invitation')[0]?.price || 0.70 * config.divinePrice })
+buyPrice.set('veritanias-map', { price: config.items.filter((item) => item.itemName === 'veritanias-map')[0]?.price|| 0.30 * config.divinePrice })
+buyPrice.set('barans-map', { price: config.items.filter((item) => item.itemName === 'barans-map')[0]?.price|| 0.30 * config.divinePrice })
+buyPrice.set('droxs-map', { price: config.items.filter((item) => item.itemName === 'droxs-map')[0]?.price || 0.30 * config.divinePrice })
+buyPrice.set('al-hezmins-map', { price: config.items.filter((item) => item.itemName === 'al-hezmins-map')[0]?.price || 0.30 * config.divinePrice })
+buyPrice.set('eldritch-orb-of-annulment', { price: config.items.filter((item) => item.itemName === 'eldritch-orb-of-annulment')[0]?.price || 0.30 * config.divinePrice })
+buyPrice.set('eldritch-chaos-orb', { price: config.items.filter((item) => item.itemName === 'eldritch-chaos-orb')[0]?.price || 0.30 * config.divinePrice })
+buyPrice.set('vivid-watcher', { price: config.items.filter((item) => item.itemName === 'vivid-watcher')[0]?.price || 0.30 * config.divinePrice })
+buyPrice.set('vivid-vulture', { price: config.items.filter((item) => item.itemName === 'vivid-vulture')[0]?.price || 0.30 * config.divinePrice })
+buyPrice.set('craicic-chimeral', { price: config.items.filter((item) => item.itemName === 'craicic-chimeral')[0]?.price || 0.30 * config.divinePrice })
+buyPrice.set('exceptional-eldritch-ichor', { price: config.items.filter((item) => item.itemName === 'exceptional-eldritch-ichor')[0]?.price || 0.30 * config.divinePrice })
+buyPrice.set('exceptional-eldritch-ember', { price: config.items.filter((item) => item.itemName === 'exceptional-eldritch-ember')[0]?.price || 0.30 * config.divinePrice })
+
+
+  // console.log(config.items.filter((item) => item.itemName === 'craicic-chimeral')[0]?.price)
 
 const ws = new WebSocket('ws://localhost:8999/');
 
@@ -71,10 +73,6 @@ function App() {
   const lastData = useSelector((state) => state.item.lastData)
   const divinePrice = useSelector((state) => state.item.divinePrice)
   const savedItems = useSelector((state) => state.item.savedItems)
-
-
-
-  console.log(savedItems)
 
   const dispatch = useDispatch()
 
@@ -138,8 +136,6 @@ function App() {
     return sortedData
   }
 
-
-
   return (
     <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
       <div style={{display:'flex',flexDirection:'column', maxWidth:'520px', padding:'20px'}}>
@@ -166,7 +162,7 @@ function App() {
             let config = JSON.parse(localStorage.getItem('config'));
 
 
-            let item = config.items.filter((item)=> item.itemName === e[0]);
+            let item = config.items.filter((item)=> item.itemName === e[0])[0];
 
             console.log(item)
 
@@ -249,16 +245,6 @@ function App() {
       </div>
 
       <div style={{ }}>
-
-        {/* <div style={{ fontFamily: '"Raleway", sans-serif', backgroundColor: '#F4F7FC', width: '100%', height: '50px', display: 'flex', alignItems: 'center', fontSize: '14px', color: '#464F60' }}>
-          <div style={{ width: '68px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><p>QTY</p></div>
-          <div style={{ width: '140px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><p>ITEM</p></div>
-          <div style={{ width: '116px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><p>PRICE</p></div>
-          <div style={{ width: '55px', display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}><p>CHAOS PRICE</p></div>
-          <div style={{ width: '55px', display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}><p>DIVINE PRICE</p></div>
-          <div style={{ width: '55px', display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}><p>TOTAL PRICE</p></div>
-          <div style={{ width: '55px', display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}><p>PROFIT PER ITEM</p></div>
-        </div> */}
 
         <div style={{ overflowY: 'auto', maxHeight: '700px', maxWidth: '650px', }}>
           {items.map((e, index) => {

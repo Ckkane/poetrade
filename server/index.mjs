@@ -15,6 +15,21 @@ const webSocketServer = new WebSocketServer({ server });
 
 let queryes = [
 
+
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"chaos\"],\"want\":[\"exceptional-eldritch-ichor\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"divine\"],\"want\":[\"exceptional-eldritch-ichor\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"chaos\"],\"want\":[\"exceptional-eldritch-ember\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"divine\"],\"want\":[\"exceptional-eldritch-ember\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+
+
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"chaos\"],\"want\":[\"eldritch-orb-of-annulment\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"divine\"],\"want\":[\"eldritch-orb-of-annulment\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"chaos\"],\"want\":[\"eldritch-chaos-orb\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"divine\"],\"want\":[\"eldritch-chaos-orb\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+
+
     "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"chaos\"],\"want\":[\"veritanias-map\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
     "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"divine\"],\"want\":[\"veritanias-map\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
 
@@ -72,24 +87,19 @@ let proxyList = [
 
 
 let interval = null;
-let inter = null;
 let j = 0;
 let i = 0;
 
 
 webSocketServer.on('connection', ws => {
 
-    clearInterval(interval)
-    clearInterval(inter)
-
     ws.on('message', function message(data) {
-        clearInterval(inter)
-        clearInterval(interval)
 
         i = 0;
         j = 0;
 
         let func = () => {
+
             if (i == queryes.length) i = 0;
             if (j == proxyList.length) j = 0;
 
@@ -110,8 +120,6 @@ webSocketServer.on('connection', ws => {
                 },
             })
 
-            console.log(queryes[i])
-
             response.then((res) => {
                 ws.send(JSON.stringify(res.data))
                 console.log(res.data)
@@ -122,9 +130,12 @@ webSocketServer.on('connection', ws => {
 
         func();
         interval = setInterval(func, 14000)
-        // interval = setInterval(func, 80000 / queryes.length)
         ws.on("error", e => ws.send(e));
 
+    });
+
+    ws.on('close', () => {
+        clearInterval(interval)
     });
 });
 

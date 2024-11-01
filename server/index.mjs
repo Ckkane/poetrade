@@ -95,6 +95,8 @@ webSocketServer.on('connection', ws => {
 
     ws.on('message', function message(data) {
 
+        clearInterval(interval)
+
         i = 0;
         j = 0;
 

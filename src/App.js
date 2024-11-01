@@ -160,11 +160,7 @@ function App() {
           {serializePrice().map((e)=>{
 
             let config = JSON.parse(localStorage.getItem('config'));
-
-
             let item = config.items.filter((item)=> item.itemName === e[0])[0];
-
-            console.log(item)
 
             return <div style={{width:'400px'}}>
 
@@ -244,12 +240,12 @@ function App() {
         </div>
       </div>
 
-      <div style={{ }}>
+      <div>
 
         <div style={{ overflowY: 'auto', maxHeight: '700px', maxWidth: '650px', }}>
           {items.map((e, index) => {
 
-            if ((((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2) <= 1 || ((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2) <= 0.12) {
+            if ((((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2) <= 0.5 || ((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2) <= 0.12) {
               return;
             }
 
@@ -257,10 +253,30 @@ function App() {
               snd.play();
             }
 
+
+            function setColorByProfit() {
+
+              let bulkProfit = (((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2);
+
+
+              if(bulkProfit >= 0.5 && bulkProfit <= 1){
+                return 10
+              }else if (bulkProfit >= 1.01 && bulkProfit <= 2) {
+                return 20
+              }else if (bulkProfit >= 2.01 && bulkProfit <= 4) {
+                return 30
+              }else if (bulkProfit >= 4.01) {
+                return 40
+              }else{
+                return 0
+              }
+
+            }
+            
             indexItem++;
 
             return <div key={e.id}>
-              <div style={indexItem % 2 == 0 ? { display: 'flex', width: '600px', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white' } : { display: 'flex', width: '600px', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F9FAFC' }}>
+              <div style={{ display: 'flex', width: '600px', justifyContent: 'space-between', alignItems: 'center', background: `linear-gradient(90deg, rgb(255 255 255 / 41%) 35%, rgb(149 102 255 / ${setColorByProfit()}%) 100%)` }}>
                 <div className={styles.price}>
                   <div style={{ padding: '3px 10px', backgroundColor: '#f9fafc', width: '60px', height: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
                     <img height={48} style={{ opacity: '0.3' }} src={"https://web.poecdn.com" + (sortedLabels.get(e.listing.offers[0].item.currency) ? sortedLabels.get(e.listing.offers[0].item.currency) : sortedLabels.get('default'))} />

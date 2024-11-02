@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux'
 import { addNewItems, setBulkItems, fetchUserById, setDivinePrice, saveItems } from './redux/slices/itemSlice'
@@ -9,9 +9,11 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 
 import { IoRefresh, IoCheckmark  } from "react-icons/io5";
+import { GoArrowSwitch } from "react-icons/go";
 
 import styles from './style.module.scss'
 import axios from 'axios';
+import { useRef } from 'react';
 
 let allLabels = JSON.parse(localStorage.getItem('labels'));
 let config = JSON.parse(localStorage.getItem('config'))
@@ -52,15 +54,10 @@ buyPrice.set('vivid-vulture', { price: config.items.filter((item) => item.itemNa
 buyPrice.set('craicic-chimeral', { price: config.items.filter((item) => item.itemName === 'craicic-chimeral')[0]?.price || 0.30 * config.divinePrice })
 buyPrice.set('exceptional-eldritch-ichor', { price: config.items.filter((item) => item.itemName === 'exceptional-eldritch-ichor')[0]?.price || 0.30 * config.divinePrice })
 buyPrice.set('exceptional-eldritch-ember', { price: config.items.filter((item) => item.itemName === 'exceptional-eldritch-ember')[0]?.price || 0.30 * config.divinePrice })
+buyPrice.set('devouring-fragment', { price: config.items.filter((item) => item.itemName === 'devouring-fragment')[0]?.price || 1.2 * config.divinePrice })
 
 
   // console.log(config.items.filter((item) => item.itemName === 'craicic-chimeral')[0]?.price)
-
-const ws = new WebSocket('ws://localhost:8999/');
-
-ws.onopen = (event) => {
-  console.log("open")
-}
 
 
 function App() {
@@ -84,13 +81,13 @@ function App() {
     return responseData
   }
 
-  React.useEffect(() => {
-    setTimeout(() => {
-      ws.send('start')
-    }, 2000)
-  }, [])
+  let ws = useRef(new WebSocket('ws://localhost:8999/'));
 
-  React.useEffect(() => {
+
+  let indexItem = 1;
+
+
+  function resultUpdate(ws) {
     ws.onmessage = (event) => {
 
       let array = [];
@@ -118,12 +115,7 @@ function App() {
 
       dispatch(addNewItems(array))
     };
-
-  }, [])
-
-
-  let indexItem = 1;
-
+  }
 
   function serializePrice() {
     let entries = buyPrice.entries();
@@ -139,7 +131,26 @@ function App() {
   return (
     <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
       <div style={{display:'flex',flexDirection:'column', maxWidth:'520px', padding:'20px'}}>
+
+      <div style={{display:'flex', width:'100%', justifyContent:'space-around', alignItems:'center'}}>
+          <button style={{background:'linear-gradient(90deg, rgba(38, 52, 255, 0.25) 15%, rgba(149, 102, 255, 0.25) 100%)',border:'none',borderRadius:'3px',padding:'10px',color:'white',cursor:'pointer'}} onClick={()=>{
+
+            ws.current = new WebSocket('ws://localhost:8999/')
+
+            ws.current.onopen = (event) => {
+              ws.current.send('start')
+            }
+
+            resultUpdate(ws.current)
+
+          }} >{'Start'.toUpperCase()}</button>
+          <button style={{background:'linear-gradient(90deg, rgba(38, 52, 255, 0.25) 15%, rgba(149, 102, 255, 0.25) 100%)',border:'none',borderRadius:'3px',padding:'10px',color:'white', fontSize:'12px', cursor:'pointer'}} onClick={()=>{
+            ws.current.send('stop')
+          }} >{'stop'.toUpperCase()}</button>
+        </div>
+
       <div style={{width:'100%',display:'flex', justifyContent:'space-between',alignItems:'center'}}>
+
         <div style={{display:'flex', width:'190px', justifyContent:'space-between', alignItems:'center'}}>
           <span style={{fontSize:'15px'}}>Total searched items</span>
           <span style={{fontSize:'15px'}}>{items.length}</span>
@@ -164,22 +175,23 @@ function App() {
 
             return <div style={{width:'400px'}}>
 
-            <Accordion style={{backgroundColor:'#f4f7fc', marginTop:'20px'}} slotProps={{ heading: { component: 'h4' } }}>
+            <Accordion style={{background:'linear-gradient(90deg, rgb(38 52 255 / 25%) 15%, rgba(149, 102, 255, 0.25) 100%)', boxShadow:'none', width:'397px', marginTop:'1px'}} slotProps={{ heading: { component: 'h4' } }}>
                 <AccordionSummary
                   aria-controls="panel1-content"
                   id="panel1-header"
                 >
-                  <div style={{display:'flex', justifyContent:'space-between', width:'100%', alignItems:'center'}}>
-                    <span style={{fontSize:'12px'}}>{e[0]}</span>
+                  <div style={{display:'flex', justifyContent:'', width:'100%', alignItems:'center'}}>
+                    <img height={25} style={{opacity:'0.2'}} src={"https://web.poecdn.com" + (sortedLabels.get(e[0]) ? sortedLabels.get(e[0]) : sortedLabels.get('default'))}/>
+                    <span style={{fontSize:'12px', color:'white', marginLeft:'5px'}}>{e[0].toUpperCase()}</span>
                   </div>
                 </AccordionSummary>
-                <AccordionDetails style={{height:'220px'}}>
+                <AccordionDetails style={{height:'250px'}}>
                   <div style={{display:'flex', alignItems:'center', flexDirection:'column'}}>
                   <div style={{width:'300px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
                       <span style={{fontSize:'12px'}}>Price</span>
-                      <input name={`price-input-${e[0]}`} style={{maxWidth:'50px', textAlign:'center'}} type='text' defaultValue={Number(item.price / divinePrice).toFixed(2)} />
+                      <input name={`price-input-${e[0]}`} style={{maxWidth:'50px', textAlign:'center',borderRadius:'3px', border:'none', color:'rgb(104, 113, 130)'}} type='text' defaultValue={Number(item.price / divinePrice).toFixed(2)} />
                       <span style={{fontSize:'12px'}}>Min count</span>
-                      <input name={`count-input-${e[0]}`} style={{maxWidth:'50px', textAlign:'center'}} type='text' defaultValue={1} />
+                      <input name={`count-input-${e[0]}`} style={{maxWidth:'50px', textAlign:'center',borderRadius:'3px', border:'none', color:'rgb(104, 113, 130)'}} type='text' defaultValue={1} />
                       <button onClick={()=>{
                         let priceInput = document.getElementsByName(`price-input-${e[0]}`)[0];
                         let countInput = document.getElementsByName(`count-input-${e[0]}`)[0];
@@ -197,7 +209,7 @@ function App() {
                     <div style={{display:'flex', justifyContent:'center'}}>
                       <div style={{display:'flex', width:'130px', justifyContent:'space-between', alignItems:'center', marginTop:'30px'}}>
                         <span style={{fontSize:'12px'}}>Count</span>
-                        <input name={e[0]} style={{maxWidth:'35px', textAlign:'center'}} type='text' defaultValue={20} />
+                        <input name={e[0]} style={{maxWidth:'35px', textAlign:'center', borderRadius:'3px', border:'none', color:'#8f8f8f'}} type='text' defaultValue={20} />
 
                         <button style={{backgroundColor:'transparent', border:'none', cursor:'pointer'}} onClick={(event)=>{
 
@@ -219,10 +231,12 @@ function App() {
                             }
 
 
-                            return <div>
-                              <span>{result.length}</span>
-                              {result.slice(0,5).map((each) => <div style={{display:'flex', width:'250px', justifyContent:'space-between', padding:'3px'}}>
-                                <span style={{fontSize:'12px'}}>{e[0]}</span>
+                            return <div style={{width:'100%', display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column', marginTop:'10px'}}>
+                              <span style={{fontSize:'12px', color:'white', fontWeight:'500'}}>{('total found ' + result.length).toString().toUpperCase()}</span>
+                              {result.slice(0,5).map((each) => <div style={{display:'flex', fontWeight:'500', width:'220px', justifyContent:'space-between', alignItems:'center', padding:'3px', color:'rgb(104, 113, 130)'}}>
+                                <div style={{width: '150px'}}>
+                                  <span style={{fontSize:'12px'}}>{each.listing.account.name.split('').slice(0,20).join('')}</span>
+                                </div>
                                 <span style={{fontSize:'12px', width:'50px', textAlign:'center'}}>{(each.listing.offers[0].exchange.amount / each.listing.offers[0].item.amount).toFixed(2)}</span>
                                 <span style={{fontSize:'12px', width:'50px', textAlign:'center'}}>{ each.listing.offers[0].item.stock}</span>
                             </div>)}
@@ -242,7 +256,7 @@ function App() {
 
       <div>
 
-        <div style={{ overflowY: 'auto', maxHeight: '700px', maxWidth: '650px', }}>
+        <div style={{ overflowY: 'auto', maxHeight: '700px', maxWidth: '850px', }}>
           {items.map((e, index) => {
 
             if ((((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2) <= 0.5 || ((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2) <= 0.12) {
@@ -254,19 +268,39 @@ function App() {
             }
 
 
-            function setColorByProfit() {
+            function setColorByProfitBulk() {
 
               let bulkProfit = (((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2);
 
 
               if(bulkProfit >= 0.5 && bulkProfit <= 1){
-                return 10
+                return 15
               }else if (bulkProfit >= 1.01 && bulkProfit <= 2) {
-                return 20
+                return 25
               }else if (bulkProfit >= 2.01 && bulkProfit <= 4) {
-                return 30
-              }else if (bulkProfit >= 4.01) {
                 return 40
+              }else if (bulkProfit >= 4.01) {
+                return 50
+              }else{
+                return 0
+              }
+
+            }
+
+
+            function setColorByProfitSingleItem() {
+
+              let profitProcent = (((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) / ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock))) - 1) * 100).toFixed(2);
+
+
+              if(profitProcent >= 1 && profitProcent <= 25){
+                return 15
+              }else if (profitProcent >= 25 && profitProcent <= 45) {
+                return 25
+              }else if (profitProcent >= 45 && profitProcent <= 75) {
+                return 40
+              }else if (profitProcent >= 75) {
+                return 50
               }else{
                 return 0
               }
@@ -275,46 +309,55 @@ function App() {
             
             indexItem++;
 
+
+            // rgb(149 102 255
+
             return <div key={e.id}>
-              <div style={{ display: 'flex', width: '600px', justifyContent: 'space-between', alignItems: 'center', background: `linear-gradient(90deg, rgb(255 255 255 / 41%) 35%, rgb(149 102 255 / ${setColorByProfit()}%) 100%)` }}>
+              <div style={{ display: 'flex', margin:'1px', borderRadius:'5px', width: '800px', justifyContent: 'space-between', alignItems: 'center', background: `linear-gradient(90deg, rgb(255 238 0 / ${setColorByProfitSingleItem()}%) 15%, rgb(149 102 255 / ${setColorByProfitBulk()}%) 100%)` }}>
                 <div className={styles.price}>
-                  <div style={{ padding: '3px 10px', backgroundColor: '#f9fafc', width: '60px', height: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                    <img height={48} style={{ opacity: '0.3' }} src={"https://web.poecdn.com" + (sortedLabels.get(e.listing.offers[0].item.currency) ? sortedLabels.get(e.listing.offers[0].item.currency) : sortedLabels.get('default'))} />
-                    <p style={{ position: 'absolute', color: 'rgb(70, 79, 96)' }}>{e.listing.offers[0].item.stock}</p>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '48px', width: '400px', borderRight: '1px solid #f4f7fc;' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', height: '58px', width: '450px', borderRight: '1px solid #f4f7fc;' }}>
+                    <div style={{backgroundColor:'white'}}>
+                      <div style={{ padding: '3px 10px', borderRadius:'5px 0px 0px 5px', background: `linear-gradient(90deg, rgb(203 182 244) 15%, rgb(252 244 126) 100%)`, width: '52px', height: '52px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }} >
+                        <img height={48} style={{ opacity: '0.3' }} src={"https://web.poecdn.com" + (sortedLabels.get(e.listing.offers[0].item.currency) ? sortedLabels.get(e.listing.offers[0].item.currency) : sortedLabels.get('default'))} />
+                        <p style={{ position: 'absolute', color: 'white' }}>{e.listing.offers[0].item.stock}</p>
+                      </div>
+                    </div>
                     <div className={styles.left}>
-                      <p style={{ fontSize: '12px', color: '#171C26' }}>{e.listing.offers[0].item.currency + 'x' + e.listing.offers[0].item.amount}</p>
+                      <p style={{ fontSize: '11px', color: 'rgb(104, 113, 130)', fontWeight:'400' }}>{(e.listing.offers[0].item.currency + 'x' + e.listing.offers[0].item.amount).toString().toUpperCase()}</p>
                     </div>
-                    <p style={{ color: 'rgb(93 92 84)' }}>←</p>
+                    <GoArrowSwitch color='#aa93ff'/>
                     <div className={styles.right}>
-                      <p style={{ fontSize: '12px', color: '#171C26' }}>{e.listing.offers[0].exchange.currency + 'x' + e.listing.offers[0].exchange.amount}</p>
+                      <p style={{ fontSize: '12px', color: 'rgb(104, 113, 130)' }}>{e.listing.offers[0].exchange.currency + 'x' + e.listing.offers[0].exchange.amount}</p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', width: '400px', height: '48px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', width: '450px', height: '48px' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px' }}>{e.chaosEquivalent}</h1>
-                      <img height={13} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("chaos")} />
+                      <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px', marginRight:'5px' }}>{e.chaosEquivalent}</h1>
+                      <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("chaos")} />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px' }}>{(e.divineEquivalent)} </h1>
-                      <img height={13} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
+                      <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px', marginRight:'5px' }}>{(e.divineEquivalent)} </h1>
+                      <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px' }}>{(((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2)}</h1 >
-                      <img height={13} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
+                      <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px', marginRight:'5px' }}>{(((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2)}</h1 >
+                      <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <h1 style={{ color: '#14804A', fontWeight: '200', fontSize: '16px', textDecoration: 'underline' }}>{((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2)}</h1 >
-                      <img height={13} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
+                      <h1 style={{ color: 'rgb(104, 113, 130)', fontWeight: '200', fontSize: '14px', marginRight:'5px'}}>{((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2)}</h1 >
+                      <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <h1 style={{ color: 'rgb(104, 113, 130)', fontWeight: '200', fontSize: '14px'}}>{(((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) / ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock))) - 1) * 100).toFixed(2) + '%'}</h1 >
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                       <button className={styles.btn} onClick={(event) => {
                         whisperMessage(e) 
                         event.currentTarget.disabled = true;
-                      }}>whisper</button>
+                      }}>{'send'.toUpperCase()}</button>
                     </div>
 
                   </div>

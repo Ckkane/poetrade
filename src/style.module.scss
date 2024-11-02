@@ -10,7 +10,7 @@
     }
 
     .left {
-        width: 120px;
+        width: 150px;
         margin-left: 20px
     }
 
@@ -28,11 +28,11 @@
 
 .btn {
     padding: 5px;
-    background-color: #E1FCEF;
+    background-color: #fff;
     font-size: 10px;
     border: none;
     border-radius: 3px;
-    color: #14804A;
+    color: #aa93ff;
     cursor: pointer;
 }
 
@@ -41,3 +41,9 @@
     background-color: #FAF0F3;
     cursor: auto;
 }
+
+.text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+ }

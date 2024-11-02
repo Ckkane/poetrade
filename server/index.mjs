@@ -15,6 +15,9 @@ const webSocketServer = new WebSocketServer({ server });
 
 let queryes = [
 
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"chaos\"],\"want\":[\"devouring-fragment\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+    "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"divine\"],\"want\":[\"devouring-fragment\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
+
 
     "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"chaos\"],\"want\":[\"exceptional-eldritch-ichor\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
     "{\"query\":{\"status\":{\"option\":\"online\"},\"have\":[\"divine\"],\"want\":[\"exceptional-eldritch-ichor\"],\"stock\":{\"min\":2,\"max\":null}},\"sort\":{\"have\":\"asc\"},\"engine\":\"new\"}",
@@ -94,6 +97,14 @@ let i = 0;
 webSocketServer.on('connection', ws => {
 
     ws.on('message', function message(data) {
+
+
+        console.log(data.toString())
+
+        if(data.toString() === 'stop'){
+            ws.close();
+            return
+        }
 
         clearInterval(interval)
 

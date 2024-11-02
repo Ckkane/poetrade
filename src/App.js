@@ -132,42 +132,26 @@ function App() {
     <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
       <div style={{display:'flex',flexDirection:'column', maxWidth:'520px', padding:'20px'}}>
 
-      <div style={{display:'flex', width:'100%', justifyContent:'space-around', alignItems:'center'}}>
-          <button style={{background:'linear-gradient(90deg, rgba(38, 52, 255, 0.25) 15%, rgba(149, 102, 255, 0.25) 100%)',border:'none',borderRadius:'3px',padding:'10px',color:'white',cursor:'pointer'}} onClick={()=>{
+      <div style={{background:'linear-gradient(90deg, rgba(38, 52, 255, 0.25) 15%, rgba(149, 102, 255, 0.25) 100%)', borderRadius:'3px'}}>
+        <div style={{display:'flex', width:'375px', justifyContent:'space-around', alignItems:'center', padding:'20px 0px'}}>
+            <button style={{background:'transparent', border:'1px solid white' ,borderRadius:'3px',padding:'10px',color:'white',cursor:'pointer'}} onClick={()=>{
 
-            ws.current = new WebSocket('ws://localhost:8999/')
+              ws.current = new WebSocket('ws://localhost:8999/')
 
-            ws.current.onopen = (event) => {
-              ws.current.send('start')
-            }
+              ws.current.onopen = (event) => {
+                ws.current.send('start')
+              }
 
-            resultUpdate(ws.current)
+              resultUpdate(ws.current)
 
-          }} >{'Start'.toUpperCase()}</button>
-          <button style={{background:'linear-gradient(90deg, rgba(38, 52, 255, 0.25) 15%, rgba(149, 102, 255, 0.25) 100%)',border:'none',borderRadius:'3px',padding:'10px',color:'white', fontSize:'12px', cursor:'pointer'}} onClick={()=>{
-            ws.current.send('stop')
-          }} >{'stop'.toUpperCase()}</button>
-        </div>
-
-      <div style={{width:'100%',display:'flex', justifyContent:'space-between',alignItems:'center'}}>
-
-        <div style={{display:'flex', width:'190px', justifyContent:'space-between', alignItems:'center'}}>
-          <span style={{fontSize:'15px'}}>Total searched items</span>
-          <span style={{fontSize:'15px'}}>{items.length}</span>
-        </div>
-        <div style={{width:'150px', display:'flex', justifyContent:'space-between'}}>
-          <span style={{fontSize:'15px'}}>Divine price</span>
-          <input onBlur={(event)=>{
-
-            config.divinePrice = Number(event.target.value);
-            localStorage.setItem('config', JSON.stringify(config))
-
-            dispatch(setDivinePrice())
-
-          }} name={`divine-price-input`} style={{maxWidth:'50px', textAlign:'center'}} type='text' defaultValue={JSON.parse(localStorage.getItem('config')).divinePrice} />
-        </div>
+            }} >{'Start'.toUpperCase()}</button>
+            <button style={{background:'transparent', border:'1px solid white',borderRadius:'3px',padding:'10px',color:'white', fontSize:'12px', cursor:'pointer'}} onClick={()=>{
+              ws.current.send('stop')
+            }} >{'stop'.toUpperCase()}</button>
+          </div>
       </div>
         <div style={{maxWidth:'550px', maxHeight:'750px', overflowY:'auto'}}>
+          
           {serializePrice().map((e)=>{
 
             let config = JSON.parse(localStorage.getItem('config'));
@@ -253,118 +237,139 @@ function App() {
           })}
         </div>
       </div>
-
       <div>
 
-        <div style={{ overflowY: 'auto', maxHeight: '700px', maxWidth: '850px', }}>
-          {items.map((e, index) => {
+        <div style={{ maxHeight: '700px', maxWidth: '850px', }}>
 
-            if ((((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2) <= 0.5 || ((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2) <= 0.12) {
-              return;
-            }
+          <div style={{width:'100%',display:'flex', justifyContent:'space-between',alignItems:'center'}}>
+            <div style={{display:'flex', width:'190px', justifyContent:'space-between', alignItems:'center'}}>
+              <span style={{fontSize:'15px'}}>Total searched items</span>
+              <span style={{fontSize:'15px'}}>{items.length}</span>
+            </div>
+            <div style={{width:'150px', display:'flex', justifyContent:'space-between'}}>
+              <span style={{fontSize:'15px'}}>Divine price</span>
+              <input onBlur={(event)=>{
 
-            if (newItems.find((elem) => elem.id === e.id)) {
-              snd.play();
-            }
+                config.divinePrice = Number(event.target.value);
+                localStorage.setItem('config', JSON.stringify(config))
 
+                dispatch(setDivinePrice())
 
-            function setColorByProfitBulk() {
+              }} name={`divine-price-input`} style={{maxWidth:'50px', textAlign:'center'}} type='text' defaultValue={JSON.parse(localStorage.getItem('config')).divinePrice} />
+            </div>
+          </div>
 
-              let bulkProfit = (((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2);
+          <div style={{overflowY: 'auto', maxHeight: '700px', maxWidth: '850px'}}>
+            {items.map((e, index) => {
 
-
-              if(bulkProfit >= 0.5 && bulkProfit <= 1){
-                return 15
-              }else if (bulkProfit >= 1.01 && bulkProfit <= 2) {
-                return 25
-              }else if (bulkProfit >= 2.01 && bulkProfit <= 4) {
-                return 40
-              }else if (bulkProfit >= 4.01) {
-                return 50
-              }else{
-                return 0
+              if ((((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2) <= 0.5 || ((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2) <= 0.12) {
+                return;
               }
 
-            }
-
-
-            function setColorByProfitSingleItem() {
-
-              let profitProcent = (((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) / ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock))) - 1) * 100).toFixed(2);
-
-
-              if(profitProcent >= 1 && profitProcent <= 25){
-                return 15
-              }else if (profitProcent >= 25 && profitProcent <= 45) {
-                return 25
-              }else if (profitProcent >= 45 && profitProcent <= 75) {
-                return 40
-              }else if (profitProcent >= 75) {
-                return 50
-              }else{
-                return 0
+              if (newItems.find((elem) => elem.id === e.id)) {
+                snd.play();
               }
 
-            }
-            
-            indexItem++;
+
+              function setColorByProfitBulk() {
+
+                let bulkProfit = (((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2);
 
 
-            // rgb(149 102 255
+                if(bulkProfit >= 0.5 && bulkProfit <= 1){
+                  return 15
+                }else if (bulkProfit >= 1.01 && bulkProfit <= 2) {
+                  return 25
+                }else if (bulkProfit >= 2.01 && bulkProfit <= 4) {
+                  return 40
+                }else if (bulkProfit >= 4.01) {
+                  return 50
+                }else{
+                  return 0
+                }
 
-            return <div key={e.id}>
-              <div style={{ display: 'flex', margin:'1px', borderRadius:'5px', width: '800px', justifyContent: 'space-between', alignItems: 'center', background: `linear-gradient(90deg, rgb(255 238 0 / ${setColorByProfitSingleItem()}%) 15%, rgb(149 102 255 / ${setColorByProfitBulk()}%) 100%)` }}>
-                <div className={styles.price}>
-                  <div style={{ display: 'flex', alignItems: 'center', height: '58px', width: '450px', borderRight: '1px solid #f4f7fc;' }}>
-                    <div style={{backgroundColor:'white'}}>
-                      <div style={{ padding: '3px 10px', borderRadius:'5px 0px 0px 5px', background: `linear-gradient(90deg, rgb(203 182 244) 15%, rgb(252 244 126) 100%)`, width: '52px', height: '52px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }} >
-                        <img height={48} style={{ opacity: '0.3' }} src={"https://web.poecdn.com" + (sortedLabels.get(e.listing.offers[0].item.currency) ? sortedLabels.get(e.listing.offers[0].item.currency) : sortedLabels.get('default'))} />
-                        <p style={{ position: 'absolute', color: 'white' }}>{e.listing.offers[0].item.stock}</p>
+              }
+
+
+              function setColorByProfitSingleItem() {
+
+                let profitProcent = (((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) / ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock))) - 1) * 100).toFixed(2);
+
+
+                if(profitProcent >= 1 && profitProcent <= 25){
+                  return 15
+                }else if (profitProcent >= 25 && profitProcent <= 45) {
+                  return 25
+                }else if (profitProcent >= 45 && profitProcent <= 75) {
+                  return 40
+                }else if (profitProcent >= 75) {
+                  return 50
+                }else{
+                  return 0
+                }
+
+              }
+
+              indexItem++;
+
+
+              // rgb(149 102 255
+
+              return <div key={e.id}>
+                <div style={{ display: 'flex', margin:'1px', borderRadius:'5px', width: '800px', justifyContent: 'space-between', alignItems: 'center', background: `linear-gradient(90deg, rgb(255 238 0 / ${setColorByProfitSingleItem()}%) 15%, rgb(149 102 255 / ${setColorByProfitBulk()}%) 100%)` }}>
+                  <div className={styles.price}>
+                    <div style={{ display: 'flex', alignItems: 'center', height: '58px', width: '450px', borderRight: '1px solid #f4f7fc;' }}>
+                      <div style={{backgroundColor:'white'}}>
+                        <div style={{ padding: '3px 10px', borderRadius:'5px 0px 0px 5px', background: `linear-gradient(90deg, rgb(203 182 244) 15%, rgb(252 244 126) 100%)`, width: '52px', height: '52px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }} >
+                          <img height={48} style={{ opacity: '0.3' }} src={"https://web.poecdn.com" + (sortedLabels.get(e.listing.offers[0].item.currency) ? sortedLabels.get(e.listing.offers[0].item.currency) : sortedLabels.get('default'))} />
+                          <p style={{ position: 'absolute', color: 'white' }}>{e.listing.offers[0].item.stock}</p>
+                        </div>
+                      </div>
+                      <div className={styles.left}>
+                        <p style={{ fontSize: '11px', color: 'rgb(104, 113, 130)', fontWeight:'400' }}>{(e.listing.offers[0].item.currency + 'x' + e.listing.offers[0].item.amount).toString().toUpperCase()}</p>
+                      </div>
+                      <GoArrowSwitch color='#aa93ff'/>
+                      <div className={styles.right}>
+                        <p style={{ fontSize: '12px', color: 'rgb(104, 113, 130)' }}>{e.listing.offers[0].exchange.currency + 'x' + e.listing.offers[0].exchange.amount}</p>
                       </div>
                     </div>
-                    <div className={styles.left}>
-                      <p style={{ fontSize: '11px', color: 'rgb(104, 113, 130)', fontWeight:'400' }}>{(e.listing.offers[0].item.currency + 'x' + e.listing.offers[0].item.amount).toString().toUpperCase()}</p>
-                    </div>
-                    <GoArrowSwitch color='#aa93ff'/>
-                    <div className={styles.right}>
-                      <p style={{ fontSize: '12px', color: 'rgb(104, 113, 130)' }}>{e.listing.offers[0].exchange.currency + 'x' + e.listing.offers[0].exchange.amount}</p>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', width: '450px', height: '48px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px', marginRight:'5px' }}>{e.chaosEquivalent}</h1>
-                      <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("chaos")} />
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px', marginRight:'5px' }}>{(e.divineEquivalent)} </h1>
-                      <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px', marginRight:'5px' }}>{(((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2)}</h1 >
-                      <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
-                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', width: '450px', height: '48px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px', marginRight:'5px' }}>{e.chaosEquivalent}</h1>
+                        <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("chaos")} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px', marginRight:'5px' }}>{(e.divineEquivalent)} </h1>
+                        <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <h1 style={{ color: '#687182', fontWeight: '200', fontSize: '14px', marginRight:'5px' }}>{(((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2)}</h1 >
+                        <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
+                      </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <h1 style={{ color: 'rgb(104, 113, 130)', fontWeight: '200', fontSize: '14px', marginRight:'5px'}}>{((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2)}</h1 >
-                      <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
-                    </div>
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <h1 style={{ color: 'rgb(104, 113, 130)', fontWeight: '200', fontSize: '14px', marginRight:'5px'}}>{((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2)}</h1 >
+                        <img height={15} style={{ opacity: '0.6' }} src={"https://web.poecdn.com" + sortedLabels.get("divine")} />
+                      </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <h1 style={{ color: 'rgb(104, 113, 130)', fontWeight: '200', fontSize: '14px'}}>{(((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) / ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock))) - 1) * 100).toFixed(2) + '%'}</h1 >
-                    </div>
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <h1 style={{ color: 'rgb(104, 113, 130)', fontWeight: '200', fontSize: '14px'}}>{(((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) / ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock))) - 1) * 100).toFixed(2) + '%'}</h1 >
+                      </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <button className={styles.btn} onClick={(event) => {
-                        whisperMessage(e) 
-                        event.currentTarget.disabled = true;
-                      }}>{'send'.toUpperCase()}</button>
-                    </div>
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <button className={styles.btn} onClick={(event) => {
+                          whisperMessage(e) 
+                          event.currentTarget.disabled = true;
+                        }}>{'send'.toUpperCase()}</button>
+                      </div>
 
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          })}
+              })}
+          </div>
+          
         </div>
       </div>
       <div>

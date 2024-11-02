@@ -2,6 +2,7 @@
 import WebSocket from 'ws';
 
 
+let league = 'Settlers';
 
 const options = {
     headers: {
@@ -18,21 +19,46 @@ const options = {
     }
 };
 
-const ws = new WebSocket('wss://www.pathofexile.com/api/trade/live/Settlers/JOnvsl', options);
+
+let items = [
+    {
+        type: 'Craicic Chimeral',
+        itemName:'',
+        query:'Ab3LSL'
+    },
+    {
+        type: 'Craicic Chimeral',
+        itemName:'',
+        query:'Z503r87uQ'
+    }
+]
+
+let websockets = []
+
+items.forEach((item)=>{
+    websockets.push({
+        item,
+        "socket": new WebSocket(`wss://www.pathofexile.com/api/trade/live/${league}/${item.query}`, options)
+    })
+})
 
 
-ws.on('open', () => {
-    console.log('Connected');
-});
+websockets.forEach(ws => {
+    ws.socket.on('open', () => {
+        console.log('Connected ' + ws.item.type);
+    });
+    
+    
+    ws.socket.on('message',function (data) {
+        let jsonData = JSON.parse(data);
+    
+        if(jsonData.auth === true) return;
+    
+    })
 
-
-ws.on('message',function (data) {
-    let jsonData = JSON.parse(data);
-
-    if(jsonData.auth === true) return;
-
-    console.log(jsonData)
-
+    ws.socket.on('close',function (data) {
+        console.log('connection close')
+    })
 })
 
 

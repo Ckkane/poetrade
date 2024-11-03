@@ -7,6 +7,7 @@ import { addNewItems, setBulkItems, fetchUserById, setDivinePrice, saveItems } f
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
+import Tooltip from '@mui/material/Tooltip';
 
 import { IoRefresh, IoCheckmark  } from "react-icons/io5";
 import { GoArrowSwitch } from "react-icons/go";
@@ -56,10 +57,6 @@ buyPrice.set('exceptional-eldritch-ichor', { price: config.items.filter((item) =
 buyPrice.set('exceptional-eldritch-ember', { price: config.items.filter((item) => item.itemName === 'exceptional-eldritch-ember')[0]?.price || 0.30 * config.divinePrice })
 buyPrice.set('devouring-fragment', { price: config.items.filter((item) => item.itemName === 'devouring-fragment')[0]?.price || 1.2 * config.divinePrice })
 
-
-  // console.log(config.items.filter((item) => item.itemName === 'craicic-chimeral')[0]?.price)
-
-
 function App() {
 
   const items = useSelector((state) => state.item.items)
@@ -82,10 +79,6 @@ function App() {
   }
 
   let ws = useRef(new WebSocket('ws://localhost:8999/'));
-
-
-  let indexItem = 1;
-
 
   function resultUpdate(ws) {
     ws.onmessage = (event) => {
@@ -270,67 +263,67 @@ function App() {
                 snd.play();
               }
 
+              function generateGradient(item) {
 
-              function setColorByProfitBulk() {
+                let profitProcent = (((buyPrice.get(item.listing.offers[0].item.currency).price * item.listing.offers[0].item.stock) / ((buyPrice.get(item.listing.offers[0].item.currency).price * item.listing.offers[0].item.stock) - ((buyPrice.get(item.listing.offers[0].item.currency).price * item.listing.offers[0].item.stock) - (item.chaosEquivalent * item.listing.offers[0].item.stock))) - 1) * 100).toFixed(2);
+                let bulkProfit = (((buyPrice.get(item.listing.offers[0].item.currency).price * item.listing.offers[0].item.stock) - (item.chaosEquivalent * item.listing.offers[0].item.stock)) / divinePrice).toFixed(2);
 
-                let bulkProfit = (((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2);
+                let leftColor = ''
+                let rightColor = ''
 
 
                 if(bulkProfit >= 0.5 && bulkProfit <= 1){
-                  return 15
+                  rightColor = 15
                 }else if (bulkProfit >= 1.01 && bulkProfit <= 2) {
-                  return 25
+                  rightColor = 25
                 }else if (bulkProfit >= 2.01 && bulkProfit <= 4) {
-                  return 40
+                  rightColor = 40
                 }else if (bulkProfit >= 4.01) {
-                  return 50
+                  rightColor = 50
                 }else{
-                  return 0
+                  rightColor = 0
                 }
-
-              }
-
-
-              function setColorByProfitSingleItem() {
-
-                let profitProcent = (((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) / ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock))) - 1) * 100).toFixed(2);
 
 
                 if(profitProcent >= 1 && profitProcent <= 25){
-                  return 15
+                  leftColor = 15
                 }else if (profitProcent >= 25 && profitProcent <= 45) {
-                  return 25
+                  leftColor = 25
                 }else if (profitProcent >= 45 && profitProcent <= 75) {
-                  return 40
+                  leftColor = 40
                 }else if (profitProcent >= 75) {
-                  return 50
+                  leftColor = 50
                 }else{
-                  return 0
+                  leftColor = 0
                 }
 
+                return `linear-gradient(90deg, rgb(255 238 0 / ${leftColor}%) 15%, rgb(149 102 255 / ${rightColor}%) 100%)`
               }
 
-              indexItem++;
-
-
-              // rgb(149 102 255
+              function divineChaos(item) {
+                return <div>
+                  <span style={{color:'white'}}>{Math.floor((item.listing.offers[0].item.amount * item.divineEquivalent * item.buyEquivalent).toFixed(1).toString().split('.')[0]) + 'd ' + ((item.listing.offers[0].item.amount * item.divineEquivalent * item.buyEquivalent).toFixed(2) - Number((item.listing.offers[0].item.amount * item.divineEquivalent * item.buyEquivalent).toString().split('.')[0])).toFixed(1) * divinePrice + 'c'}</span>
+                </div>
+              }
 
               return <div key={e.id}>
-                <div style={{ display: 'flex', margin:'1px', borderRadius:'5px', width: '800px', justifyContent: 'space-between', alignItems: 'center', background: `linear-gradient(90deg, rgb(255 238 0 / ${setColorByProfitSingleItem()}%) 15%, rgb(149 102 255 / ${setColorByProfitBulk()}%) 100%)` }}>
+                <div style={{ display: 'flex', margin:'1px', borderRadius:'5px', width: '800px', justifyContent: 'space-between', alignItems: 'center', background: `${generateGradient(e)}` }}>
                   <div className={styles.price}>
-                    <div style={{ display: 'flex', alignItems: 'center', height: '58px', width: '450px', borderRight: '1px solid #f4f7fc;' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', height: '59px', width: '450px', borderRight: '1px solid #f4f7fc;' }}>
                       <div style={{backgroundColor:'white'}}>
                         <div style={{ padding: '3px 10px', borderRadius:'5px 0px 0px 5px', background: `linear-gradient(90deg, rgb(203 182 244) 15%, rgb(252 244 126) 100%)`, width: '52px', height: '52px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }} >
                           <img height={48} style={{ opacity: '0.3' }} src={"https://web.poecdn.com" + (sortedLabels.get(e.listing.offers[0].item.currency) ? sortedLabels.get(e.listing.offers[0].item.currency) : sortedLabels.get('default'))} />
                           <p style={{ position: 'absolute', color: 'white' }}>{e.listing.offers[0].item.stock}</p>
                         </div>
                       </div>
-                      <div className={styles.left}>
-                        <p style={{ fontSize: '11px', color: 'rgb(104, 113, 130)', fontWeight:'400' }}>{(e.listing.offers[0].item.currency + 'x' + e.listing.offers[0].item.amount).toString().toUpperCase()}</p>
-                      </div>
-                      <GoArrowSwitch color='#aa93ff'/>
-                      <div className={styles.right}>
-                        <p style={{ fontSize: '12px', color: 'rgb(104, 113, 130)' }}>{e.listing.offers[0].exchange.currency + 'x' + e.listing.offers[0].exchange.amount}</p>
+                      <div style={{display:'flex', justifyContent:'center', width:'100%', alignItems:'center'}}>
+                        <div className={styles.left}>
+                          <p style={{ fontSize: '10px', color: 'rgb(104, 113, 130)', fontWeight:'400' }}>{(e.listing.offers[0].item.currency + 'x' + e.listing.offers[0].item.amount).toString().toUpperCase()}</p>
+                        </div>
+                        <GoArrowSwitch size={'1em'} color='rgb(104, 113, 130)'/>
+                        <div className={styles.right}>
+                          <p style={{ fontSize: '10px', color: 'rgb(104, 113, 130)', marginLeft:'30px' }}>{(e.listing.offers[0].exchange.currency + 'x' + e.listing.offers[0].exchange.amount).toString().toUpperCase()}</p>
+                        </div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', width: '450px', height: '48px' }}>
@@ -356,20 +349,20 @@ function App() {
                         <h1 style={{ color: 'rgb(104, 113, 130)', fontWeight: '200', fontSize: '14px'}}>{(((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) / ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - ((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock))) - 1) * 100).toFixed(2) + '%'}</h1 >
                       </div>
 
+                      <Tooltip title={divineChaos(e)} placement="right">
                       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <button className={styles.btn} onClick={(event) => {
                           whisperMessage(e) 
                           event.currentTarget.disabled = true;
                         }}>{'send'.toUpperCase()}</button>
                       </div>
-
+                      </Tooltip>
                     </div>
                   </div>
                 </div>
               </div>
               })}
           </div>
-          
         </div>
       </div>
       <div>

@@ -16,7 +16,10 @@ import styles from './style.module.scss'
 import axios from 'axios';
 import { useRef } from 'react';
 
+// console.log('work?')
+
 let allLabels = JSON.parse(localStorage.getItem('labels'));
+
 let config = JSON.parse(localStorage.getItem('config'))
 
 let sortedLabels = new Map();
@@ -66,6 +69,7 @@ function App() {
   const requestStatus = useSelector((state) => state.item.requestStatus)
   const lastData = useSelector((state) => state.item.lastData)
   const divinePrice = useSelector((state) => state.item.divinePrice)
+  const [date, setDate] = useState(new Date());
   const savedItems = useSelector((state) => state.item.savedItems)
 
   const dispatch = useDispatch()
@@ -78,10 +82,12 @@ function App() {
     return responseData
   }
 
-  let ws = useRef(new WebSocket('ws://localhost:8999/'));
+  let ws = useRef(new WebSocket('ws://192.168.0.10:8999/'));
 
   function resultUpdate(ws) {
     ws.onmessage = (event) => {
+
+      setDate(new Date())
 
       let array = [];
       let data = JSON.parse(event.data);
@@ -122,14 +128,14 @@ function App() {
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
-      <div style={{display:'flex',flexDirection:'column', maxWidth:'520px', padding:'20px'}}>
+    <div className='main' style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{display:'flex',flexDirection:'column', maxWidth:'520px'}}>
 
       <div style={{background:'linear-gradient(90deg, rgba(38, 52, 255, 0.25) 15%, rgba(149, 102, 255, 0.25) 100%)', borderRadius:'3px'}}>
-        <div style={{display:'flex', width:'375px', justifyContent:'space-around', alignItems:'center', padding:'20px 0px'}}>
+        <div style={{display:'flex', width:'100%', justifyContent:'space-around', alignItems:'center', padding:'20px 0px'}}>
             <button style={{background:'transparent', border:'1px solid white' ,borderRadius:'3px',padding:'10px',color:'white',cursor:'pointer'}} onClick={()=>{
 
-              ws.current = new WebSocket('ws://localhost:8999/')
+              ws.current = new WebSocket('ws://192.168.0.10:8999/')
 
               ws.current.onopen = (event) => {
                 ws.current.send('start')
@@ -232,15 +238,15 @@ function App() {
       </div>
       <div>
 
-        <div style={{ maxHeight: '700px', maxWidth: '850px', }}>
+        <div style={{ maxWidth: '850px' }}>
 
-          <div style={{width:'100%',display:'flex', justifyContent:'space-between',alignItems:'center'}}>
-            <div style={{display:'flex', width:'190px', justifyContent:'space-between', alignItems:'center'}}>
-              <span style={{fontSize:'15px'}}>Total searched items</span>
-              <span style={{fontSize:'15px'}}>{items.length}</span>
+          <div style={{width:'100%',display:'flex', justifyContent:'space-around',alignItems:'center', padding:'20px 0px'}}>
+            <div style={{display:'flex', width:'220px', justifyContent:'space-around', alignItems:'center'}}>
+              <span style={{fontSize:'11px'}}>Total searched items:{items.length}</span>
+              <span style={{fontSize:'11px'}}>{date.getUTCMinutes() + ':' + date.getSeconds()}</span>
             </div>
-            <div style={{width:'150px', display:'flex', justifyContent:'space-between'}}>
-              <span style={{fontSize:'15px'}}>Divine price</span>
+            <div style={{width:'150px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+              <span style={{fontSize:'11px'}}>Divine price</span>
               <input onBlur={(event)=>{
 
                 config.divinePrice = Number(event.target.value);
@@ -252,7 +258,7 @@ function App() {
             </div>
           </div>
 
-          <div style={{overflowY: 'auto', maxHeight: '700px', maxWidth: '850px'}}>
+          <div className='item' style={{overflowY: 'auto'}}>
             {items.map((e, index) => {
 
               if ((((buyPrice.get(e.listing.offers[0].item.currency).price * e.listing.offers[0].item.stock) - (e.chaosEquivalent * e.listing.offers[0].item.stock)) / divinePrice).toFixed(2) <= 0.5 || ((buyPrice.get(e.listing.offers[0].item.currency).price - e.chaosEquivalent) / divinePrice).toFixed(2) <= 0.12) {

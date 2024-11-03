@@ -1,6 +1,22 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { divPrice } from '../../settings'
 import axios from 'axios'
+
+
+axios.defaults.baseURL = 'http://192.168.0.10:4000';
+
+localStorage.setItem('config', `{"divinePrice":163,"items":[{"itemName":"al-hezmins-map","price":57.74999999999999,"minCount":"1"},{"itemName":"craicic-chimeral","price":198,"minCount":"1"},{"itemName":"droxs-map","price":57.74999999999999,"minCount":"1"},{"itemName":"vivid-vulture","price":652,"minCount":"1"},{"itemName":"barans-map","price":48.9,"minCount":"1"},{"itemName":"veritanias-map","price":48.9,"minCount":"1"},{"itemName":"exceptional-eldritch-ember","price":228.2,"minCount":"1"},{"itemName":"exceptional-eldritch-ichor","price":244.5,"minCount":"1"},{"itemName":"eldritch-chaos-orb","price":73.35000000000001,"minCount":"1"},{"itemName":"incandescent-invitation","price":114.1,"minCount":"1"},{"itemName":"eldritch-orb-of-annulment","price":73.35000000000001,"minCount":"1"},{"itemName":"vivid-watcher","price":244.5,"minCount":"1"},{"itemName":"devouring-fragment","price":211.9,"minCount":"1"},{"itemName":"abomination-map-tier-17","price":114.1,"minCount":"1"},{"itemName":"fortress-map-tier-17","price":130.4,"minCount":"1"},{"itemName":"ziggurat-map-tier-17","price":145.07,"minCount":"1"}]}`)
+
+;( async function () {
+  
+
+  let labels = '';
+
+  await axios.post('/api/getlabels').then(response => labels = response.data)
+
+  localStorage.setItem('labels', labels);
+
+})()
+
 
 const initialState = {
     items: [],
@@ -15,7 +31,7 @@ const initialState = {
 export const fetchUserById = createAsyncThunk(
     'items/fetchByIdItemName',
     async (item) => {
-        return axios.post('http://localhost:4000/getdata', item).then(response => {
+        return axios.post('/api/getdata', item).then(response => {
             return { name: item.name, stock: item.stock, data: response.data }
         })
     },

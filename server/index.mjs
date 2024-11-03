@@ -1,6 +1,7 @@
 import http from 'http';
 import express, { response } from 'express';
 import WebSocket, { WebSocketServer } from 'ws';
+import fs from 'fs'
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import cors from 'cors';
 import axios from 'axios';
@@ -149,11 +150,12 @@ webSocketServer.on('connection', ws => {
 
     ws.on('close', () => {
         clearInterval(interval)
+        console.log('close')
     });
 });
 
 
-app.post('/whisper', (req, res) => {
+app.post('/api/whisper', (req, res) => {
     fetch("https://www.pathofexile.com/api/trade/whisper", {
         "headers": {
             "accept": "*/*",
@@ -187,7 +189,7 @@ app.post('/whisper', (req, res) => {
 })
 
 
-app.post('/getdata', (req, res) => {
+app.post('/api/getdata', (req, res) => {
 
         let query = `{"query":{"status":{"option":"online"},"have":["divine"],"want":["${req.body.name}"],"stock":{"min":${req.body.stock},"max":null}},"sort":{"have":"asc"},"engine":"new"}`;
 
@@ -207,6 +209,13 @@ app.post('/getdata', (req, res) => {
         })
 
         response.then((response)=> res.send(response.data))
+})
+
+
+app.post('/api/getlabels', (req, res) => {
+    fs.readFile('labels.json', 'utf8', function (err, data) {
+        res.send(JSON.stringify(data))
+    })
 })
 
 app.listen(4000);

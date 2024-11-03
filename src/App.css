@@ -4,6 +4,29 @@ body {
   font-family: "Exo", sans-serif;
 }
 
+@media (min-width: 200px) and (max-width: 1024px) {
+  .main{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto!important;
+  }
+
+  .item{
+    width: 400px;
+    max-height: 400px;
+    height: 400px;
+  }
+}
+
+@media (min-width: 1024px) {
+
+  .item{
+    width: 805px;
+    max-height: 700px;
+  }
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 2px;
@@ -23,3 +46,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #d0d1d3;
 }
+

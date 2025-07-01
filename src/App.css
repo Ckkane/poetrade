@@ -4,6 +4,22 @@ body {
   font-family: "Exo", sans-serif;
 }
 
+
+.chel{
+  background: no-repeat url("../public/info-right.png");
+  background-position: bottom left;
+  opacity: 0.1;
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  right: 0;
+  height: 600px;
+}
+
+.menu{
+  z-index: 2;
+}
+
 @media (min-width: 200px) and (max-width: 1024px) {
   .main{
     display: flex;
@@ -17,13 +33,28 @@ body {
     max-height: 400px;
     height: 400px;
   }
+
+  .menu{
+    max-width: 550px;
+    height: auto;
+    overflow: auto;
+  }
+
 }
 
 @media (min-width: 1024px) {
 
   .item{
     width: 805px;
-    max-height: 700px;
+    max-height: 750px;
+  }
+
+  .menu{
+    /* maxWidth:'550px', maxHeight:'750px', overflowY:'auto' */
+
+    max-width: 550px;
+    height: 750px;
+    overflow: auto;
   }
 }
 

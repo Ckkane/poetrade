@@ -1,0 +1,1 @@
+start cmd.exe /k "node C:/Users/admin/Desktop/poetrade/server/index.mjs"

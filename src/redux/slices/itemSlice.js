@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 
 
-axios.defaults.baseURL = 'http://192.168.0.101:4000/';
+axios.defaults.baseURL = 'http://192.168.0.11:4000/';
 
 
 if(localStorage.getItem('config') === null){

@@ -27,7 +27,7 @@ function MainContent({date, buyPrice, sortedLabels}) {
 
       console.log(item)
 
-      axios.post('http://192.168.0.101:4000/api/whisper', { "token": `${item.listing.whisper_token}`, "values": [item.buyEquivalent] }).then(response => {
+      axios.post('http://192.168.0.11:4000/api/whisper', { "token": `${item.listing.whisper_token}`, "values": [item.buyEquivalent] }).then(response => {
         responseData = response.data.succsess
       })
       return responseData

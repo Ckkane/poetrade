@@ -5,7 +5,6 @@ import fs from "fs";
 import { SocksProxyAgent } from "socks-proxy-agent";
 import cors from "cors";
 import axios from "axios";
-import robotjs from "robotjs";
 
 const app = express();
 
@@ -80,11 +79,8 @@ let queryes = [
 let proxyList = ["socks5://M1UWum:gVCgdA@168.80.203.219:8000"];
 
 
-// sanya
-let cookie = 'POESESSID=8356f1633c5fb8ad5b9c173149947414; cf_clearance=BvZvNqg0Eq9hhyEuVOEsYMJ6ToBq803xP_RutcRUxWQ-1749992546-1.2.1.1-qJacl1hH3viBJrb8F9izs26ZYeg5KlbVENlynQ.1CXONo0Hc8RncsvKXmsVXZi_m0S802idAVwHOBUCowa0NAR_tUEtFoGYu8VdeKcu488A2cRpTWsZoxBALE0oyUoA5YaUKgPaMzvl7lcthitlLw0VU..3Ckm7_GPYCmvsun5wOqSRJ77OsyQ1X3jur0YwL8BxLHvN4.rIyGmLPlbipKYRKdYOyzXNelZWQnt5UM9m4S6Ink51jhYTWq25JReFhFKFaU4z5.MWNAN6P4JVoewpQdvKITfHTTvyPExxwMRkVtQi3N58T7dNTaXayQZs.6tQ3lISLrtGk5EnZBBHvAb3.UWpVhR8J.q25SZjNj0kxIktKOdeJ5FX88Ux8rWWg';
-
 // moe
-// let cookie = 'POESESSID=3275376946b157c5dae455e99bd64918; cf_clearance=NI4bRdrTPtGYpyT4HLwojfW932GU16_poFXHXVICYjw-1749984131-1.2.1.1-rA5lr537.fGFKGZD4R8MxLsywlM1ioQpMdW0V0gTB3PYQuj_yv63WCeovteDkOOGoPKdxllMRBoyWaAAcLDjZvpTgNsNVk4ryEveEWRF_S.boxSWDB__42R6BkuOCS0Tg6EMRFa3cEbiDu247qFti4t.QwwrmAtCf7rUAhmQs4U_4BRaiLJqHxgWIVjlPDN8lU4LYSQSp5zow4EDeT.F5DPrQ.jx40QlGhgRVS4aKSZvIEW9Z2PS7kekhx_fXUFRru_V0k3XfrTiQboCtpb30M6AMBCKpYvBw66FZvbgXQ8ctx2_Jj6ahtKaBBYVXE8Vz4bnUo9Z7FmFb6fG_H84uXGjEPOBL1AVhOlxpkES_QLXAjA._tclqI1.EMGua0wt';
+// let cookie = '';
 
 
 
